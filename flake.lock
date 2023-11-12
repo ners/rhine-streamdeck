@@ -1,0 +1,95 @@
+{
+  "nodes": {
+    "dunai": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1697953999,
+        "narHash": "sha256-YShK6gQ5VSJVa/vVaTdDZ2lddPWWKaF2b3a9i+aQp60=",
+        "owner": "ivanperez-keera",
+        "repo": "dunai",
+        "rev": "d06fde9b289cc1d9792c43fac3dcb26524d9ed22",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ivanperez-keera",
+        "repo": "dunai",
+        "type": "github"
+      }
+    },
+    "nix-filter": {
+      "locked": {
+        "lastModified": 1694857738,
+        "narHash": "sha256-bxxNyLHjhu0N8T3REINXQ2ZkJco0ABFPn6PIe2QUfqo=",
+        "owner": "numtide",
+        "repo": "nix-filter",
+        "rev": "41fd48e00c22b4ced525af521ead8792402de0ea",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "nix-filter",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1699099776,
+        "narHash": "sha256-X09iKJ27mGsGambGfkKzqvw5esP1L/Rf8H3u3fCqIiU=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "85f1ba3e51676fa8cc604a3d863d729026a6b8eb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "rhine": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1699711338,
+        "narHash": "sha256-F/bzgmzHFbwncO9v7pVRRA5ItHo6hqTfRnnJCAB2D8I=",
+        "owner": "ners",
+        "repo": "rhine",
+        "rev": "66bd71b1b271312b41e9c6d754a1ae921de34261",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ners",
+        "ref": "dunai-0.12",
+        "repo": "rhine",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "dunai": "dunai",
+        "nix-filter": "nix-filter",
+        "nixpkgs": "nixpkgs",
+        "rhine": "rhine",
+        "streamdeck": "streamdeck"
+      }
+    },
+    "streamdeck": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1699810931,
+        "narHash": "sha256-fkMx6jf7yn2TyzIUN/xU+Ep2U3kZldgAHnTwAVYwcBg=",
+        "owner": "Linschlager",
+        "repo": "haskell-streamdeck",
+        "rev": "628262ef6fc54d1ccf0a2363769896b27b8fbd02",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Linschlager",
+        "repo": "haskell-streamdeck",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

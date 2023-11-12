@@ -1,0 +1,10 @@
+*
+!.gitignore
+!*.cabal
+!*.hs
+!*.md
+!*.nix
+!flake.lock
+!fourmolu.yaml
+!*/
+dist-newstyle

@@ -1,0 +1,92 @@
+cabal-version:      3.4
+name:               rhine-streamdeck
+version:            0.1.0.0
+-- synopsis:
+-- description:
+license:            Apache-2.0
+license-file:       LICENSE
+author:             ners
+maintainer:         ners@gmx.ch
+-- copyright:
+category:           Testing
+build-type:         Simple
+extra-doc-files:    CHANGELOG.md
+-- extra-source-files:
+
+common common
+    default-language: GHC2021
+    ghc-options:
+        -Weverything
+        -Wno-unsafe
+        -Wno-missing-safe-haskell-mode
+        -Wno-missing-export-lists
+        -Wno-missing-import-lists
+        -Wno-missing-kind-signatures
+        -Wno-all-missed-specialisations
+    default-extensions:
+        ApplicativeDo
+        Arrows
+        BlockArguments
+        DataKinds
+        DefaultSignatures
+        DeriveAnyClass
+        DeriveGeneric
+        DerivingStrategies
+        DerivingVia
+        ExplicitNamespaces
+        LambdaCase
+        NoFieldSelectors
+        NoImplicitPrelude
+        OverloadedLabels
+        OverloadedRecordDot
+        OverloadedStrings
+        RecordWildCards
+        RecursiveDo
+        TypeFamilies
+        ViewPatterns
+
+library
+    import:           common
+    exposed-modules:
+        MyLib
+    other-modules:
+        Internal.Prelude,
+    build-depends:
+        JuicyPixels,
+        JuicyPixels-extra,
+        base,
+        dunai,
+        exceptions,
+        generic-lens,
+        lens,
+        rhine,
+        streamdeck,
+        text,
+        time,
+        transformers,
+    hs-source-dirs:   lib
+    default-language: GHC2021
+
+executable rhine-streamdeck
+    import:           common
+    main-is:          Main.hs
+    -- other-modules:
+    -- other-extensions:
+    build-depends:
+        base,
+        rhine-streamdeck,
+
+    hs-source-dirs:   app
+    default-language: GHC2021
+
+test-suite rhine-streamdeck-test
+    import:           common
+    default-language: GHC2021
+    -- other-modules:
+    -- other-extensions:
+    type:             exitcode-stdio-1.0
+    hs-source-dirs:   test
+    main-is:          Main.hs
+    build-depends:
+        base,
+        rhine-streamdeck,
