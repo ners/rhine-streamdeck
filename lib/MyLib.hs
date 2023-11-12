@@ -59,7 +59,7 @@ runStreamdeck state f = runReaderT f._runApp state
 mainRhine :: Rhine App ButtonClock () ()
 mainRhine =
     buttonEventStream
-        >-> liftBaseS (trace "ButtonEvents: ")
+        >-> traceMSF "ButtonEvents: "
         >-> handleButtonEvents
         @@ ButtonClock
   where

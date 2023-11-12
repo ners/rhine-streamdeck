@@ -20,6 +20,7 @@ module Internal.Prelude
     , module System.HIDAPI
     , module Debug.Trace
     , getCurrentTime
+    , traceMSF
     )
 where
 
@@ -40,11 +41,20 @@ import Data.Maybe (catMaybes, fromMaybe)
 import Data.Ord
 import Data.Time qualified
 import Data.Word (Word16, Word8)
-import Debug.Trace hiding (trace)
-import FRP.Rhine
+import Debug.Trace
+import FRP.Rhine hiding (trace)
 import GHC.Generics
 import System.HIDAPI (Device, DeviceInfo)
 import Prelude
 
 getCurrentTime :: (MonadIO m) => m UTCTime
 getCurrentTime = liftIO Data.Time.getCurrentTime
+
+traceMSF :: forall a m t. (Show a, Monad m, Show (Diff (Time t))) => String -> ClSF m t a a
+traceMSF prefix = proc a -> do
+    t <- sinceInitS -< ()
+    arrMCl traceM -< logStr t a
+    returnA -< a
+    where
+        logStr :: Diff (Time t) -> a -> String
+        logStr t x = concat ["[", show t, "] ", prefix, show x]
