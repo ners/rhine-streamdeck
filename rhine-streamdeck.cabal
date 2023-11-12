@@ -4,7 +4,6 @@ version:            0.1.0.0
 -- synopsis:
 -- description:
 license:            Apache-2.0
-license-file:       LICENSE
 author:             ners
 maintainer:         ners@gmx.ch
 -- copyright:
@@ -48,22 +47,25 @@ common common
 library
     import:           common
     exposed-modules:
-        MyLib
+        FRP.StreamDeck,
+        FRP.StreamDeck.App,
+        FRP.StreamDeck.ButtonClock,
+        MyLib,
     other-modules:
         Internal.Prelude,
     build-depends:
         JuicyPixels,
         JuicyPixels-extra,
         base,
-        dunai,
-        exceptions,
+        bytestring,
         generic-lens,
+        hidapi,
         lens,
+        mtl,
         rhine,
         streamdeck,
-        text,
         time,
-        transformers,
+        transformers-base,
     hs-source-dirs:   lib
     default-language: GHC2021
 
