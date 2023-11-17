@@ -46,25 +46,13 @@ generateDynamicKeyImage
     -> DynamicImage
 generateDynamicKeyImage = imageToDynamic . generateKeyImage @px @s
 
-setClickedKeyToImg
-    :: forall m s
-     . (MonadFail m, MonadIO m, IsStreamDeckWithDisplayButtons s)
-    => DynamicImage
-    -> StreamDeckT m s ()
-setClickedKeyToImg img = do
-    maybeKey <- StreamDeck.readActiveKey
-    case maybeKey of
-        Just key -> setKeyImage key img
-        Nothing -> pure ()
-    setClickedKeyToImg img
-
-setKeyImage
+setButtonImage
     :: forall m s
      . (MonadFail m, MonadIO m, IsStreamDeckWithDisplayButtons s)
     => Int
     -> DynamicImage
     -> StreamDeckT m s ()
-setKeyImage key (encodeDynamicImage -> image) = StreamDeck.setKeyImage key image
+setButtonImage key (encodeDynamicImage -> image) = StreamDeck.setButtonImage key image
 
 black :: PixelRGB8
 black = PixelRGB8 0 0 0
@@ -114,15 +102,15 @@ mainRhine =
         >-> traceMSF "LayerEvents: "
         >-> arrMCl handleLayerEvent
         @@ ButtonClock
-    where
-        handleLayerEvent LayerEvent{event = ButtonPressed key, onLayer = Red} = setKeyImage key $ redDynamicKeyImage @s
-        handleLayerEvent LayerEvent{event = ButtonPressed key, onLayer = Blue} = setKeyImage key $ blueDynamicKeyImage @s
-        handleLayerEvent LayerEvent{event = ButtonReleased key} = setKeyImage key $ blackDynamicKeyImage @s
-        handleLayerEvent _ = pure ()
+  where
+    handleLayerEvent LayerEvent{event = ButtonPressed key, onLayer = Red} = setButtonImage key $ redDynamicKeyImage @s
+    handleLayerEvent LayerEvent{event = ButtonPressed key, onLayer = Blue} = setButtonImage key $ blueDynamicKeyImage @s
+    handleLayerEvent LayerEvent{event = ButtonReleased key} = setButtonImage key $ blackDynamicKeyImage @s
+    handleLayerEvent _ = pure ()
 
 someFunc :: IO ()
 someFunc = do
-    StreamDeck.enumerate @StreamDeckMk2 >>= \case
-        [] -> fail "no devices found"
-        [device] -> StreamDeck.runStreamDeck device $ flow mainRhine
-        _ -> fail "multiple devices found"
+    void $ StreamDeck.runStreamDeck @StreamDeckMk2 $ do
+        sn <- view $ #deviceInfo . #serialNumber
+        traceShowM sn
+        when (sn == Just "DL17L2A82959") $ flow mainRhine
