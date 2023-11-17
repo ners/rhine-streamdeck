@@ -28,7 +28,7 @@ instance
             (Tag ButtonClock)
     initClock ButtonClock = do
         initialTime <- getCurrentTime
-        eventChan <- newChan
+        eventQ <- newTBQueueIO 100
         let
             toButtonEvent :: (Int, Bool, Bool) -> Maybe ButtonEvent
             toButtonEvent (i, False, True) = Just $ ButtonPressed i
@@ -36,17 +36,20 @@ instance
             toButtonEvent _ = Nothing
             initialStates = replicate (StreamDeck.buttonCount @s) False
             producer = iterateM $ \oldStates -> do
-                time <- getCurrentTime
                 newStates <- StreamDeck.readKeyStates
+                time <- getCurrentTime
                 let events =
                         zip3 [0 ..] oldStates newStates
                             & Data.Maybe.mapMaybe toButtonEvent
                             & fmap (time,)
-                writeList2Chan eventChan events
+
+                atomically $ forM_ events $ writeTBQueue eventQ
                 pure newStates
-            consumer = constM (readChan eventChan)
+
+            consumer = atomically $ readTBQueue eventQ
+
         forkIO $ producer initialStates
-        pure (consumer, initialTime)
+        pure (constM consumer, initialTime)
 
 instance GetClockProxy ButtonClock
 
