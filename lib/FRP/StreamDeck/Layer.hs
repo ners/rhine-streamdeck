@@ -2,24 +2,23 @@
 
 module FRP.StreamDeck.Layer where
 
-import FRP.StreamDeck.ButtonClock (ButtonClock, ButtonEvent (..))
 import GHC.Records (HasField (getField))
 import Internal.Prelude
 
-data LayerEvent l
+data LayerEvent e l
     = SwitchLayers {fromLayer :: l, toLayer :: l}
-    | LayerButtonEvent {onLayer :: l, event :: ButtonEvent}
+    | LayerEvent {onLayer :: l, event :: e}
     deriving stock (Show, Eq)
 
-instance HasField "nextLayer" (LayerEvent l) l where
+instance HasField "nextLayer" (LayerEvent e l) l where
     getField SwitchLayers{..} = toLayer
-    getField LayerButtonEvent{..} = onLayer
+    getField LayerEvent{..} = onLayer
 
-class Layer l where
-    layerEvent :: ButtonEvent -> l -> LayerEvent l
-    layerEvent event onLayer = LayerButtonEvent{..}
+class Layer e l where
+    layerEvent :: e -> l -> LayerEvent e l
+    layerEvent event onLayer = LayerEvent{..}
 
-layerEvents :: (Monad m, Layer l) => ClSF m ButtonClock l (LayerEvent l)
+layerEvents :: (Monad m, Layer e l, e ~ Tag cl) => ClSF m cl l (LayerEvent e l)
 layerEvents = tagS &&& id >>> arrMCl (pure . uncurry layerEvent)
 
 -- layer
@@ -29,9 +28,8 @@ layerEvents = tagS &&& id >>> arrMCl (pure . uncurry layerEvent)
 --    returnA -< layerEvent
 
 layer
-    :: forall l m
-     . (Layer l, Monad m)
+    :: (Layer e l, Monad m, e ~ Tag cl)
     => l
-    -> ClSF m ButtonClock () (LayerEvent l)
+    -> ClSF m cl () (LayerEvent e l)
 layer initialLayer =
     feedback initialLayer $ arr snd >>> layerEvents >>> arr (toSnd (.nextLayer))

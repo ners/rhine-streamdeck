@@ -6,7 +6,6 @@ import Data.ByteString.Lazy qualified as LBS
 import Data.Either (fromRight)
 import FRP.StreamDeck.ButtonClock (ButtonClock (ButtonClock), ButtonEvent (..))
 import FRP.StreamDeck.Layer
-import GHC.Records (HasField (getField))
 import Internal.Prelude
 import System.Hardware.Devices.StreamDeckMk2
 import System.Hardware.StreamDeck qualified as StreamDeck
@@ -86,21 +85,22 @@ blue = PixelRGB8 0 0 255
 
 blueDynamicKeyImage
     :: forall s. (IsStreamDeckWithDisplayButtons s) => DynamicImage
-blueDynamicKeyImage = generateDynamicKeyImage @_ @s . const . const $ red
+blueDynamicKeyImage = generateDynamicKeyImage @_ @s . const . const $ blue
 
 data Teletubbies = Red | Blue deriving stock (Bounded, Enum, Eq, Show)
 
-instance HasField "successor" Teletubbies Teletubbies where
-    getField Red = Blue
-    getField Blue = Red
-
-instance Layer Teletubbies where
-    layerEvent (ButtonPressed 0) l =
+instance Layer ButtonEvent Teletubbies where
+    layerEvent (ButtonReleased 0) Blue =
         SwitchLayers
-            { fromLayer = l
-            , toLayer = l.successor
+            { fromLayer = Blue
+            , toLayer = Red
             }
-    layerEvent event onLayer = LayerButtonEvent{..}
+    layerEvent (ButtonPressed 0) Red =
+        SwitchLayers
+            { fromLayer = Red
+            , toLayer = Blue
+            }
+    layerEvent event onLayer = LayerEvent{..}
 
 mainRhine
     :: forall m s
@@ -112,19 +112,13 @@ mainRhine
 mainRhine =
     layer Red
         >-> traceMSF "LayerEvents: "
-        >-> handleLayerEvent
+        >-> arrMCl handleLayerEvent
         @@ ButtonClock
-  where
-    --handleButtonEvent :: ClSF (StreamDeckT m s) ButtonClock ButtonEvent ()
-    --handleButtonEvent = arrMCl $ \case
-    --    ButtonPressed key -> setKeyImage key $ redDynamicKeyImage @s
-    --    ButtonReleased key -> setKeyImage key $ blackDynamicKeyImage @s
-    handleLayerEvent :: ClSF (StreamDeckT m s) ButtonClock (LayerEvent Teletubbies) ()
-    handleLayerEvent = arrMCl $ \case
-        LayerButtonEvent{event = ButtonPressed key, onLayer = Red} -> setKeyImage key $ redDynamicKeyImage @s
-        LayerButtonEvent{event = ButtonPressed key, onLayer = Blue} -> setKeyImage key $ blueDynamicKeyImage @s
-        LayerButtonEvent{event = ButtonReleased key} -> setKeyImage key $ blackDynamicKeyImage @s
-        _ -> pure ()
+    where
+        handleLayerEvent LayerEvent{event = ButtonPressed key, onLayer = Red} = setKeyImage key $ redDynamicKeyImage @s
+        handleLayerEvent LayerEvent{event = ButtonPressed key, onLayer = Blue} = setKeyImage key $ blueDynamicKeyImage @s
+        handleLayerEvent LayerEvent{event = ButtonReleased key} = setKeyImage key $ blackDynamicKeyImage @s
+        handleLayerEvent _ = pure ()
 
 someFunc :: IO ()
 someFunc = do
