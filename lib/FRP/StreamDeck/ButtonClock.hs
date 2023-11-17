@@ -1,19 +1,18 @@
 module FRP.StreamDeck.ButtonClock where
 
 import Data.Maybe qualified
-import FRP.StreamDeck qualified as StreamDeck
-import FRP.StreamDeck.App
 import Internal.Prelude
+import System.Hardware.StreamDeck qualified as StreamDeck
 
 data ButtonClock = ButtonClock
 
-instance Clock App ButtonClock where
+instance (MonadIO m, IsStreamDeck s) => Clock (StreamDeckT m s) ButtonClock where
     type Time ButtonClock = UTCTime
     type Tag ButtonClock = [Bool]
     initClock ButtonClock = do
         initialTime <- getCurrentTime
         let
-            update :: MSF App () (Time ButtonClock, Tag ButtonClock)
+            update :: MSF (StreamDeckT m s) () (Time ButtonClock, Tag ButtonClock)
             update = proc () -> do
                 time <- constM getCurrentTime -< ()
                 states <- constM StreamDeck.readKeyStates -< ()
@@ -25,7 +24,7 @@ instance GetClockProxy ButtonClock
 instance Semigroup ButtonClock where
     t <> _ = t
 
-buttonStates :: ClSF App ButtonClock () [Bool]
+buttonStates :: MonadIO m => ClSF (StreamDeckT m s) ButtonClock () [Bool]
 buttonStates = tagS
 
 data ButtonEvent
@@ -33,7 +32,7 @@ data ButtonEvent
     | ButtonReleased Int
     deriving stock (Show)
 
-buttonEvents :: ClSF App ButtonClock [Bool] [ButtonEvent]
+buttonEvents :: MonadIO m => ClSF (StreamDeckT m s) ButtonClock [Bool] [ButtonEvent]
 buttonEvents = proc oldStates -> do
     newStates <- tagS -< ()
     let stateChanges =
