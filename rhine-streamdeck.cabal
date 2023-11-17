@@ -47,8 +47,6 @@ common common
 library
     import:           common
     exposed-modules:
-        FRP.StreamDeck,
-        FRP.StreamDeck.App,
         FRP.StreamDeck.ButtonClock,
         MyLib,
     other-modules:
@@ -59,13 +57,11 @@ library
         base,
         bytestring,
         generic-lens,
-        hidapi,
         lens,
         mtl,
         rhine,
         streamdeck,
         time,
-        transformers-base,
     hs-source-dirs:   lib
     default-language: GHC2021
 

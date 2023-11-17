@@ -17,7 +17,7 @@ module Internal.Prelude
     , module FRP.Rhine
     , module GHC.Generics
     , module Prelude
-    , module System.HIDAPI
+    , module System.Hardware.StreamDeck
     , module Debug.Trace
     , getCurrentTime
     , traceMSF
@@ -44,7 +44,7 @@ import Data.Word (Word16, Word8)
 import Debug.Trace
 import FRP.Rhine hiding (trace)
 import GHC.Generics
-import System.HIDAPI (Device, DeviceInfo)
+import System.Hardware.StreamDeck (IsStreamDeck, IsStreamDeckWithDisplayButtons, StreamDeckT)
 import Prelude
 
 getCurrentTime :: (MonadIO m) => m UTCTime

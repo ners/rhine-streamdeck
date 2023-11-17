@@ -33,11 +33,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1699099776,
-        "narHash": "sha256-X09iKJ27mGsGambGfkKzqvw5esP1L/Rf8H3u3fCqIiU=",
+        "lastModified": 1699963925,
+        "narHash": "sha256-LE7OV/SwkIBsCpAlIPiFhch/J+jBDGEZjNfdnzCnCrY=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "85f1ba3e51676fa8cc604a3d863d729026a6b8eb",
+        "rev": "bf744fe90419885eefced41b3e5ae442d732712d",
         "type": "github"
       },
       "original": {
@@ -76,11 +76,11 @@
     "streamdeck": {
       "flake": false,
       "locked": {
-        "lastModified": 1699810931,
-        "narHash": "sha256-fkMx6jf7yn2TyzIUN/xU+Ep2U3kZldgAHnTwAVYwcBg=",
+        "lastModified": 1700158389,
+        "narHash": "sha256-KRJM268jcTqjyNtLNQWfzlrsO2C1/TNTAmxGVJpNaeo=",
         "owner": "Linschlager",
         "repo": "haskell-streamdeck",
-        "rev": "628262ef6fc54d1ccf0a2363769896b27b8fbd02",
+        "rev": "820cca604a44f082bda1a63045e2d7c3bd5bd740",
         "type": "github"
       },
       "original": {

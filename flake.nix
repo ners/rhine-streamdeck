@@ -63,6 +63,7 @@
               };
             in
             {
+              packages.${system}."${pname}-${ghcName}" = hp.${pname};
               devShells.${system}.${ghcName} = hp.shellFor {
                 packages = ps: [ ps.${pname} ];
                 nativeBuildInputs = with hp; [
