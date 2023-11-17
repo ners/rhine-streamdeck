@@ -48,6 +48,7 @@ library
     import:           common
     exposed-modules:
         FRP.StreamDeck.ButtonClock,
+        FRP.StreamDeck.Layer,
         MyLib,
     other-modules:
         Internal.Prelude,

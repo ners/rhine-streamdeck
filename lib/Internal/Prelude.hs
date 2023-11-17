@@ -2,6 +2,7 @@ module Internal.Prelude
     ( module Codec.Picture
     , module Codec.Picture.Extra
     , module Codec.Picture.Types
+    , module Control.Category
     , module Control.Lens.Combinators
     , module Control.Lens.Operators
     , module Control.Monad
@@ -23,12 +24,14 @@ module Internal.Prelude
     , getCurrentTime
     , traceMSF
     , iterateM
+    , toSnd
     )
 where
 
 import Codec.Picture
 import Codec.Picture.Extra
 import Codec.Picture.Types
+import Control.Category
 import Control.Lens.Combinators (view)
 import Control.Lens.Operators
 import Control.Monad
@@ -52,7 +55,7 @@ import System.Hardware.StreamDeck
     )
 import UnliftIO
 import UnliftIO.Concurrent
-import Prelude
+import Prelude hiding (id, (.))
 
 getCurrentTime :: (MonadIO m) => m UTCTime
 getCurrentTime = liftIO Data.Time.getCurrentTime
@@ -74,3 +77,6 @@ iterateM :: (Monad m) => (a -> m a) -> a -> m b
 iterateM f = go
   where
     go x = f x >>= go
+
+toSnd :: (a -> b) -> a -> (a, b)
+toSnd f a = (a, f a)

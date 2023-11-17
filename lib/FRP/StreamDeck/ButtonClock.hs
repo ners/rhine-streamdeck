@@ -7,7 +7,7 @@ import System.Hardware.StreamDeck qualified as StreamDeck
 data ButtonEvent
     = ButtonPressed Int
     | ButtonReleased Int
-    deriving stock (Show)
+    deriving stock (Show, Eq)
 
 data ButtonClock = ButtonClock
 
