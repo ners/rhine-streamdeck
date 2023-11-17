@@ -62,6 +62,7 @@ library
         rhine,
         streamdeck,
         time,
+        unliftio,
     hs-source-dirs:   lib
     default-language: GHC2021
 

@@ -76,11 +76,11 @@
     "streamdeck": {
       "flake": false,
       "locked": {
-        "lastModified": 1700158389,
-        "narHash": "sha256-KRJM268jcTqjyNtLNQWfzlrsO2C1/TNTAmxGVJpNaeo=",
+        "lastModified": 1700245148,
+        "narHash": "sha256-x6WzWeJcj/Nk1VCJIn8LOXdEVzcboAZxJwth6WWGH0k=",
         "owner": "Linschlager",
         "repo": "haskell-streamdeck",
-        "rev": "820cca604a44f082bda1a63045e2d7c3bd5bd740",
+        "rev": "9db901107a7b3b1af144850ceca2f0b397a37697",
         "type": "github"
       },
       "original": {

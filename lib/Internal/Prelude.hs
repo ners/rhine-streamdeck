@@ -2,7 +2,6 @@ module Internal.Prelude
     ( module Codec.Picture
     , module Codec.Picture.Extra
     , module Codec.Picture.Types
-    , module Control.Concurrent
     , module Control.Lens.Combinators
     , module Control.Lens.Operators
     , module Control.Monad
@@ -14,20 +13,22 @@ module Internal.Prelude
     , module Data.Maybe
     , module Data.Ord
     , module Data.Word
+    , module Debug.Trace
     , module FRP.Rhine
     , module GHC.Generics
     , module Prelude
     , module System.Hardware.StreamDeck
-    , module Debug.Trace
+    , module UnliftIO
+    , module UnliftIO.Concurrent
     , getCurrentTime
     , traceMSF
+    , iterateM
     )
 where
 
 import Codec.Picture
 import Codec.Picture.Extra
 import Codec.Picture.Types
-import Control.Concurrent
 import Control.Lens.Combinators (view)
 import Control.Lens.Operators
 import Control.Monad
@@ -42,19 +43,34 @@ import Data.Ord
 import Data.Time qualified
 import Data.Word (Word16, Word8)
 import Debug.Trace
-import FRP.Rhine hiding (trace)
+import FRP.Rhine hiding (newChan, trace, try)
 import GHC.Generics
-import System.Hardware.StreamDeck (IsStreamDeck, IsStreamDeckWithDisplayButtons, StreamDeckT)
+import System.Hardware.StreamDeck
+    ( IsStreamDeck
+    , IsStreamDeckWithDisplayButtons
+    , StreamDeckT
+    )
+import UnliftIO
+import UnliftIO.Concurrent
 import Prelude
 
 getCurrentTime :: (MonadIO m) => m UTCTime
 getCurrentTime = liftIO Data.Time.getCurrentTime
 
-traceMSF :: forall a m t. (Show a, Monad m, Show (Diff (Time t))) => String -> ClSF m t a a
+traceMSF
+    :: forall a m t
+     . (Show a, Monad m, Show (Diff (Time t)))
+    => String
+    -> ClSF m t a a
 traceMSF prefix = proc a -> do
     t <- sinceInitS -< ()
     arrMCl traceM -< logStr t a
     returnA -< a
-    where
-        logStr :: Diff (Time t) -> a -> String
-        logStr t x = concat ["[", show t, "] ", prefix, show x]
+  where
+    logStr :: Diff (Time t) -> a -> String
+    logStr t x = concat ["[", show t, "] ", prefix, show x]
+
+iterateM :: (Monad m) => (a -> m a) -> a -> m b
+iterateM f = go
+  where
+    go x = f x >>= go
