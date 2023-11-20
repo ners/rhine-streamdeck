@@ -11,9 +11,13 @@ data ButtonEvent
 
 data ButtonClock = ButtonClock
 
+type ButtonStates = [Bool]
+
+type TimedTag = (Time ButtonClock, Tag ButtonClock)
+
 instance
     ( MonadUnliftIO m
-    , MonadUnliftIO (StreamDeckT m s)
+    , MonadFix m
     , IsStreamDeck s
     )
     => Clock (StreamDeckT m s) ButtonClock
@@ -28,28 +32,36 @@ instance
             (Tag ButtonClock)
     initClock ButtonClock = do
         initialTime <- getCurrentTime
-        eventQ <- newTBQueueIO 100
         let
             toButtonEvent :: (Int, Bool, Bool) -> Maybe ButtonEvent
             toButtonEvent (i, False, True) = Just $ ButtonPressed i
             toButtonEvent (i, True, False) = Just $ ButtonReleased i
             toButtonEvent _ = Nothing
+
             initialStates = replicate (StreamDeck.buttonCount @s) False
-            producer = iterateM $ \oldStates -> do
+            nextEvents
+                :: ([TimedTag], ButtonStates)
+                -> StreamDeckT m s ([TimedTag], ButtonStates)
+            nextEvents ([], oldStates) = do
                 newStates <- StreamDeck.readKeyStates
                 time <- getCurrentTime
                 let events =
                         zip3 [0 ..] oldStates newStates
                             & Data.Maybe.mapMaybe toButtonEvent
                             & fmap (time,)
+                pure (events, newStates)
+            nextEvents x = pure x
 
-                atomically $ forM_ events $ writeTBQueue eventQ
-                pure newStates
-
-            consumer = atomically $ readTBQueue eventQ
-
-        forkIO $ producer initialStates
-        pure (constM consumer, initialTime)
+            runningClock :: MSF (StreamDeckT m s) () TimedTag
+            runningClock = proc () -> do
+                -- nextEvents is guaranteed to not return an empty list of events 🤯
+                rec (t : events, newStates) <-
+                        arrM nextEvents
+                            <<< iPre ([], initialStates)
+                            -<
+                                (events, newStates)
+                returnA -< t
+        pure (runningClock, initialTime)
 
 instance GetClockProxy ButtonClock
 
