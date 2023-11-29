@@ -25,6 +25,7 @@ module Internal.Prelude
     , traceMSF
     , iterateM
     , toSnd
+    , Tick
     )
 where
 
@@ -50,7 +51,9 @@ import FRP.Rhine hiding (newChan, trace, try)
 import GHC.Generics
 import System.Hardware.StreamDeck
     ( IsStreamDeck
+    , IsStreamDeckWithButtons
     , IsStreamDeckWithDisplayButtons
+    , IsStreamDeckWithKnobs
     , StreamDeckT
     )
 import UnliftIO
@@ -80,3 +83,5 @@ iterateM f = go
 
 toSnd :: (a -> b) -> a -> (a, b)
 toSnd f a = (a, f a)
+
+type Tick cl = (Time cl, Tag cl)

@@ -4,10 +4,11 @@ module MyLib where
 
 import Data.ByteString.Lazy qualified as LBS
 import Data.Either (fromRight)
-import FRP.StreamDeck.ButtonClock (ButtonClock (ButtonClock), ButtonEvent (..))
+import FRP.StreamDeck.DisplayButtonClock
 import FRP.StreamDeck.Layer
 import Internal.Prelude
 import System.Hardware.Devices.StreamDeckMk2
+import System.Hardware.Devices.StreamDeckPlus
 import System.Hardware.StreamDeck qualified as StreamDeck
 
 encodeImage :: (ColorSpaceConvertible px PixelYCbCr8) => Image px -> ByteString
@@ -23,7 +24,9 @@ encodeDynamicImage = encodeImage . convertRGB8
 
 generateKeyImage
     :: forall px s
-     . (Pixel px, IsStreamDeckWithDisplayButtons s)
+     . ( Pixel px
+       , IsStreamDeckWithDisplayButtons s
+       )
     => (Int -> Int -> px)
     -> Image px
 generateKeyImage f =
@@ -46,13 +49,13 @@ generateDynamicKeyImage
     -> DynamicImage
 generateDynamicKeyImage = imageToDynamic . generateKeyImage @px @s
 
-setButtonImage
+setDisplayButtonImage
     :: forall m s
      . (MonadFail m, MonadIO m, IsStreamDeckWithDisplayButtons s)
     => Int
     -> DynamicImage
     -> StreamDeckT m s ()
-setButtonImage key (encodeDynamicImage -> image) = StreamDeck.setButtonImage key image
+setDisplayButtonImage key (encodeDynamicImage -> image) = StreamDeck.setButtonImage key image
 
 black :: PixelRGB8
 black = PixelRGB8 0 0 0
@@ -77,13 +80,13 @@ blueDynamicKeyImage = generateDynamicKeyImage @_ @s . const . const $ blue
 
 data Teletubbies = Red | Blue deriving stock (Bounded, Enum, Eq, Show)
 
-instance Layer ButtonEvent Teletubbies where
-    layerEvent (ButtonReleased 0) Blue =
+instance Layer DisplayButtonEvent Teletubbies where
+    layerEvent (DisplayButtonReleased 0) Blue =
         SwitchLayers
             { fromLayer = Blue
             , toLayer = Red
             }
-    layerEvent (ButtonPressed 0) Red =
+    layerEvent (DisplayButtonPressed 0) Red =
         SwitchLayers
             { fromLayer = Red
             , toLayer = Blue
@@ -96,21 +99,32 @@ mainRhine
        , MonadIO m
        , IsStreamDeckWithDisplayButtons s
        )
-    => Rhine (StreamDeckT m s) ButtonClock () ()
+    => Rhine (StreamDeckT m s) DisplayButtonClock () ()
 mainRhine =
     layer Red
         >-> traceMSF "LayerEvents: "
         >-> arrMCl handleLayerEvent
-        @@ ButtonClock
+        @@ DisplayButtonClock
   where
-    handleLayerEvent LayerEvent{event = ButtonPressed key, onLayer = Red} = setButtonImage key $ redDynamicKeyImage @s
-    handleLayerEvent LayerEvent{event = ButtonPressed key, onLayer = Blue} = setButtonImage key $ blueDynamicKeyImage @s
-    handleLayerEvent LayerEvent{event = ButtonReleased key} = setButtonImage key $ blackDynamicKeyImage @s
+    handleLayerEvent LayerEvent{event = DisplayButtonPressed key, onLayer = Red} =
+        setDisplayButtonImage key $ redDynamicKeyImage @s
+    handleLayerEvent LayerEvent{event = DisplayButtonPressed key, onLayer = Blue} =
+        setDisplayButtonImage key $ blueDynamicKeyImage @s
+    handleLayerEvent LayerEvent{event = DisplayButtonReleased key} =
+        setDisplayButtonImage key $ blackDynamicKeyImage @s
     handleLayerEvent _ = pure ()
 
 someFunc :: IO ()
 someFunc = do
-    void $ StreamDeck.runStreamDeck @StreamDeckMk2 $ do
-        sn <- view $ #deviceInfo . #serialNumber
-        traceShowM sn
-        when (sn == Just "DL17L2A82959") $ flow mainRhine
+    let fn
+            :: ( MonadUnliftIO m
+               , MonadFail m
+               , IsStreamDeckWithDisplayButtons s
+               )
+            => StreamDeckT m s ()
+        fn = do
+            sn <- view $ #deviceInfo . #serialNumber
+            traceShowM sn
+            flow mainRhine
+    void $ StreamDeck.runStreamDeck @StreamDeckMk2 fn
+    void $ StreamDeck.runStreamDeck @StreamDeckPlus fn

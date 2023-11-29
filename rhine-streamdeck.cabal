@@ -48,6 +48,8 @@ library
     import:           common
     exposed-modules:
         FRP.StreamDeck.ButtonClock,
+        FRP.StreamDeck.DisplayButtonClock,
+        FRP.StreamDeck.InputClock,
         FRP.StreamDeck.Layer,
         MyLib,
     other-modules:
@@ -65,7 +67,6 @@ library
         time,
         unliftio,
     hs-source-dirs:   lib
-    default-language: GHC2021
 
 executable rhine-streamdeck
     import:           common
@@ -77,13 +78,11 @@ executable rhine-streamdeck
         rhine-streamdeck,
 
     hs-source-dirs:   app
-    default-language: GHC2021
     ghc-options: 
         -threaded
 
 test-suite rhine-streamdeck-test
     import:           common
-    default-language: GHC2021
     -- other-modules:
     -- other-extensions:
     type:             exitcode-stdio-1.0

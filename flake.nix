@@ -11,7 +11,7 @@
       flake = false;
     };
     streamdeck = {
-      url = "github:Linschlager/haskell-streamdeck";
+      url = "github:Linschlager/haskell-streamdeck/generalise-read";
       flake = false;
     };
   };
